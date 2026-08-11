@@ -1,0 +1,63 @@
+# ---- Python --------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# ---- Tooling caches ------------------------------------------------------
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# ---- Packaging -----------------------------------------------------------
+# Not used today (flat layout, no install), but cheap insurance if that changes.
+build/
+dist/
+*.egg-info/
+
+# ---- Virtual environments ------------------------------------------------
+# The project env lives outside the repo at ~/envs/bopt, but the throwaway
+# Python 3.10 environment for generating the Summit golden fixture may well get
+# created in here. It must never be committed: it is disposable by design.
+.venv/
+venv/
+env/
+envs/
+
+# ---- Notebooks -----------------------------------------------------------
+.ipynb_checkpoints/
+
+# ---- Editors and OS ------------------------------------------------------
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# ---- Claude Code ---------------------------------------------------------
+# Machine-specific permissions and preferences. A shared .claude/settings.json
+# could reasonably be committed later, so only the local override is excluded.
+.claude/settings.local.json
+
+# ---- Obsidian ------------------------------------------------------------
+# docs/ is an Obsidian vault. Its config is worth keeping so the notes render
+# the same for anyone who opens them, but workspace.json is pure UI state --
+# which pane was focused, scroll positions -- and changes on every launch.
+docs/.obsidian/workspace.json
+docs/.obsidian/workspace-mobile.json
+docs/.obsidian/cache/
+
+# ---- Project data policy -------------------------------------------------
+# data/ IS tracked, deliberately. It holds fixtures a clone cannot regenerate,
+# above all data/golden/, produced by Summit inside a Python 3.10 environment
+# that will not exist once we delete it. From the surviving project's point of
+# view that CSV is source, not output: without it, test_snar_vs_summit.py is
+# permanently unrunnable. The usual "never commit generated data" rule assumes
+# the generator can be re-run. Here it cannot.
+#
+# artifacts/ is NOT tracked: parameter sweeps, run logs, plots and anything else
+# a clone can rebuild from committed code.
+/artifacts/
