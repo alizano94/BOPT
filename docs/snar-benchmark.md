@@ -138,7 +138,7 @@ Working the exponents over the full 30 → 120 °C range:
 | k_a (absolute) | ~**20×** | heat buys enormous rate |
 | k_c / k_a | ↑ **1.7×** | over-reaction gains ground |
 | k_d / k_a | ↑ **2.8×** | over-reaction gains ground |
-| k_a / k_b | ↓ ~5% | regioselectivity nearly temperature-independent |
+| k_a / k_b | ↓ **17%** | regioselectivity degrades least of the three |
 
 **Temperature is a rate-vs-selectivity dial, and the selectivity loss is concentrated in
 the over-reaction, not the isomer split.**
@@ -219,26 +219,54 @@ Two consequences:
 
 ## 7. Where the trade-off actually lives
 
-Both objectives want product concentration C₂ as high as possible. This means
-**`conc_dfnb` is predicted to pin at its upper bound of 0.5 M for both objectives** —
-that dimension is likely degenerate.
+> **This section was rewritten after the brute-force sweep.** Its original version made
+> two predictions from the algebra above. One was confirmed; the other was **backwards**.
+> Both are kept below, because being able to see which kind of reasoning held up is more
+> useful than a clean-looking narrative. Full analysis in
+> [`findings-degeneracy.md`](findings-degeneracy.md).
 
-> This is a *prediction* from the algebra above, not a measured fact. It should be
-> confirmed or killed by a brute-force sweep before being trusted.
+### Confirmed: `conc_dfnb` pins to its upper bound
 
-The real tension:
+Both objectives want product concentration C₂ as high as possible, so `conc_dfnb` was
+predicted to sit at 0.5 M for both. It does — on **100% of the front**, in this port and
+in Summit's own data independently. On the Pareto set the problem is effectively
+three-dimensional.
 
-- STY carries the **1/τ** term. To maximise throughput you want τ = 0.5 min.
-- At τ = 0.5 min there is not enough time to convert much — **unless** you push with high
-  temperature and excess pyrrolidine.
-- Both pushes cost you. Excess amine is unreacted mass in the waste sum *and* it feeds the
-  over-reaction (k_c and k_d are both first-order in C₁). Heat tilts the rate ratios toward
-  the bis-adduct.
-- The E-factor optimum is the opposite regime: long τ, gentle temperature,
-  near-stoichiometric amine — clean, complete, slow.
+### Refuted: "fast and dirty vs. slow and clean"
 
-**Fast and dirty vs. slow and clean.** This is the Pareto front, and it falls out of the
-kinetics rather than being imposed.
+The original claim was that throughput is bought with heat and paid for in selectivity.
+The sweep says otherwise. At the high-throughput end (τ=0.5, equiv=5, conc=0.5):
+
+| Temperature | STY | E-factor |
+|---|---|---|
+| 30 °C | **11,560** | **9.76** |
+| 60 °C | 9,132 | 12.59 |
+| 90 °C | 6,496 | 18.06 |
+| 120 °C | 3,556 | 33.73 |
+
+Heat is **monotonically bad on both objectives** in this regime, and the maximum-STY point
+on the entire grid sits at the *coldest* temperature available.
+
+The flaw in the original reasoning was assuming that a short residence time forces you to
+buy rate with temperature. It does not. **Reagent excess and temperature are substitutes
+for rate, and only one of them costs selectivity.** At 5 equivalents the amine sits at
+2.5 M, enough for near-complete conversion in 30 seconds even at 30 °C; heat then adds
+nothing but over-reaction, which destroys product (↓ STY) *and* generates waste (↑ E).
+
+Temperature remains a genuine rate-vs-selectivity dial at *low* equivalents, which is where
+the rest of the front lives. It is simply not the dominant axis.
+
+### And the trade-off is weak
+
+| Objective | Range on the front | Fraction of the full grid range |
+|---|---|---|
+| STY | 4.05× | 75.5% |
+| E-factor | **1.15×** | **0.16%** |
+
+Because `conc_dfnb` pins at its bound and `E ≈ 3.75 / C_product`, the E-factor has almost
+nowhere left to move. This benchmark is close to single-objective in practice — a
+conclusion reproduced independently from Summit's own published data. See
+[`findings-degeneracy.md`](findings-degeneracy.md).
 
 > See [`pareto-fronts.md`](pareto-fronts.md) for what a Pareto front is, why scalarizing
 > these two objectives would be backwards, and how hypervolume turns the front into a
